@@ -5,6 +5,8 @@ import Nav from "./components/Nav/Nav"
 import Home from "./pages/Home/Home"
 import AllProducts from "./pages/AllProducts/AllProducts"
 import AddProduct from "./pages/AddProduct/AddProduct"
+import Register from "./pages/Register/Register"
+import Login from "./pages/Login/Login"
 
 import DatabaseProvider from "./contexts/Database"
 import ThemeProvider from "./contexts/Theme"
@@ -30,6 +32,14 @@ function App() {
             <Route
               path="/add-product"
               element={<AddProduct />}
+            />
+            <Route
+              path="/register"
+              element={<Register />}
+            />
+            <Route
+              path="/Login"
+              element={<Login />}
             />
         </Routes>
       </DatabaseProvider>

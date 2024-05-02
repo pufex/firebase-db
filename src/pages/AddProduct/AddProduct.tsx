@@ -9,9 +9,10 @@ import Input from "../../components/Input/Input"
 import Checkbox from "../../components/Checkbox/Checkbox"
 import Alert from "../../components/Alert/Alert"
 
-import "./AddProduct.css"
 import { useDatabase } from "../../contexts/Database"
 import { useSearchParams } from "react-router-dom"
+
+import "./AddProduct.css"
 
 const AddProduct = () => {
 

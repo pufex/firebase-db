@@ -2,7 +2,7 @@ import type { FormEvent, ReactElement } from "react"
 import "./Form.css"
 
 type FormProps = {
-    title: string,
+    title?: string,
     onSubmit: (e: FormEvent<HTMLFormElement>) => void;
     children: ReactElement[] | ReactElement,
     isError?: boolean,

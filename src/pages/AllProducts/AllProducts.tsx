@@ -45,6 +45,13 @@ const AllProducts = () => {
         fetchAllProducts();
     }
 
+    const handleEditError = () => {}
+
+    const handleSuccessEdit = async () => {
+        fetchAllProducts();
+    }
+
+
     const productsList = useMemo(() => {
         if(typeof products == "string")
             return []
@@ -61,6 +68,8 @@ const AllProducts = () => {
                 index={index+1}
                 onDeleteError={handleDeleteError}
                 onDelete={handleSuccesfulDelete}
+                onEdit={handleSuccessEdit}
+                onEditError={handleEditError}
             />
         })
     }, [products])

@@ -1,17 +1,26 @@
 import type {ReactElement} from "react"
+import type { UserCredential, User } from "firebase/auth"
 
-import { createContext, useContext } from "react"
+import { createContext, useContext, useState, useEffect } from "react"
 
-import { productsCollection } from "../firebase/firebase"
+import LoadingPage from "../pages/LoadingPage/LoadingPage"
+
+import { productsCollection, auth } from "../firebase/firebase"
 import { 
     addDoc, 
     deleteDoc,
+    updateDoc,
     getDocs, 
     query,
     doc,
     serverTimestamp,
     orderBy
 } from "firebase/firestore"
+import {
+    createUserWithEmailAndPassword,
+    signOut,
+    signInWithEmailAndPassword
+} from "firebase/auth"
 
 export type Product = {
     id: string,
@@ -28,12 +37,34 @@ export type RemoveProductFunction = (
     id: string
 ) => Promise<unknown>
 
+export type UpdateProductFunction = (
+    id: string,
+    newName: string,
+) => Promise<unknown>
+
 export type GetAllProductsFunction = () => Promise<unknown>
 
+export type RegisterUserFunction = (
+    email: string,
+    password: string,
+) => Promise<UserCredential>
+
+export type LogoutUserFunction = () => Promise<void>
+
+export type LoginUserFunction = (
+    email: string,
+    password: string,
+) => Promise<UserCredential>
+
 export type DatabaseContextType = {
+    currentUser?: User,
     addNewProduct: AddProductFunction
     removeProduct: RemoveProductFunction,
+    editProduct: UpdateProductFunction,
     getAllProducts: GetAllProductsFunction,
+    registerUser: RegisterUserFunction,
+    logoutUser: LogoutUserFunction,
+    loginUser: LoginUserFunction,
 }
 
 const DatabaseContext = createContext<DatabaseContextType | null>(null)
@@ -53,6 +84,21 @@ const DatabaseProvider = ({
     children,
 }:DatabaseProps) => {
     
+    const [currentUser, setCurrentUser] = useState<User | undefined>()
+    const [loading, setLoading] = useState<boolean>(true);
+
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            if(user){
+                setCurrentUser(user);
+            }
+            setLoading(false);
+            console.log(user)
+        })
+        return unsubscribe
+    }, [])
+
+
     const addNewProduct: AddProductFunction = (
         name,
         price,
@@ -68,6 +114,11 @@ const DatabaseProvider = ({
         const product = doc(productsCollection, id)
         return deleteDoc(product)
     }
+    
+    const editProduct: UpdateProductFunction = (id, newName) => {
+        const product = doc(productsCollection, id)
+        return updateDoc(product, { name: newName })
+    }
 
     const getAllProducts: GetAllProductsFunction = () => {
         const productsQuery = query(
@@ -78,19 +129,38 @@ const DatabaseProvider = ({
         return getDocs(productsQuery);
     } 
 
+    const registerUser: RegisterUserFunction = (email, password) => {
+        return createUserWithEmailAndPassword(auth, email, password)
+    } 
 
-    const value: DatabaseContextType = {
-        addNewProduct,
-        getAllProducts,
-        removeProduct,
+    const logoutUser: LogoutUserFunction = () => {
+        return signOut(auth)
     }
 
 
+    const loginUser: LoginUserFunction = (email, password) => {
+        return signInWithEmailAndPassword(auth, email, password)
+    }
+
+    const value: DatabaseContextType = {
+        addNewProduct,
+        removeProduct,
+        editProduct,
+        getAllProducts,
+        currentUser,
+        registerUser,
+        logoutUser,
+        loginUser,
+    }
 
     return <DatabaseContext.Provider
         value={value}
     >
-        {children}
+        {
+            loading 
+             ? <LoadingPage />
+             : children
+        }
     </DatabaseContext.Provider>
 }
 

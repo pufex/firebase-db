@@ -80,5 +80,40 @@
     color: var(--element-color-4);
 }
 
+.row-product__edit-form-container{
+    width: 100%;
+    border-bottom: 1px solid var(--outline-color-1);
+    padding-top: 1rem;
+    padding-bottom: 2rem;
+}
+
+.row-product__edit-form__heading{
+    font-size: 1.5rem;
+    color: var(--text-color-1);
+    font-weight: 600;
+}
+
+
+.row-product__edit-form__input-container{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.row-product__edit-form__input-container .input__container{
+    max-width: 300px;
+}
+
+.row-product__edit-form__options{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.row-product__edit-form__options button{
+    max-width: calc(150px - 0.5rem);
+}
+
 
 

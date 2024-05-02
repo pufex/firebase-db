@@ -1,0 +1,29 @@
+.register__main{
+    width: 100%;
+    min-height: calc(100vh - 3rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.register__form{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 400px;
+    background-color: var(--element-color-1);
+    border: 1px solid var(--outline-color-1);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 0 6px var(--outline-color-1);
+}
+
+.btn--in-register{
+    margin-top: 3rem;
+}
+
+.register__success-container{
+    width: 100%;
+    margin-top: 1rem;
+}
