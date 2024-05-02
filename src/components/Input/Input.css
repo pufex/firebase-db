@@ -1,0 +1,75 @@
+.input__container{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.input__labels{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.input__label{
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-color-1);
+}
+
+.input__label--error{
+    color: var(--error-color);
+}
+
+.input__input{
+    width: 100%;
+    height: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--element-color-1);
+    border: 2px solid var(--outline-color-1);
+    padding-left: 1rem;
+    border-radius: 7px;
+}
+
+.input__input--error{
+    border: 2px solid var(--error-color);
+    background-color: pink;
+}
+
+.input__input--error .input__input-itself{
+    color: var(--error-color);
+}
+
+.input__input:focus-within{
+    border: 2px solid var(--element-color-2);
+}
+
+.input__input-itself{
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    border: none;
+    outline: none;
+}
+
+.input--lock{
+    position: relative;
+    flex-shrink: 0;
+    height: 100%;
+    aspect-ratio: 1;
+}
+
+.input--lock-icon{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--text-color-1);
+}
+
+.input__input--error .input--lock-icon{
+    color: var(--error-color);
+}
+

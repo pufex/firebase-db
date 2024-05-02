@@ -1,0 +1,17 @@
+.alert__container{
+    width: 100%;
+    padding: 1rem;
+    border-radius: 7px;
+    font-size: 1.1rem;
+    color: white;
+    font-weight: 600;
+    text-align: center;
+}
+
+.alert__container--danger{
+    background-color: crimson;
+}
+
+.alert__container--success{
+    background-color: rgb(0, 149, 2);
+}

@@ -1,0 +1,37 @@
+.nav{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-inline: 1rem;
+    height: 3rem;
+    border-bottom: 1px solid var(--outline-color-1);
+    background-color: var(--element-color-1);
+    user-select: none;
+}
+
+.nav--left,
+.nav--right{
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+
+.nav__link{
+    color: var(--link-color);
+    font-size: 1.25rem;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.nav__link:hover{
+    filter: brightness(1.05)
+}
+
+.nav__link:active{
+    filter: brightness(1.25)
+}
+
+.nav__link--home{
+    color: var(--text-color-1);
+}

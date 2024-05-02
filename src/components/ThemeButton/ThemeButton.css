@@ -1,0 +1,14 @@
+.theme-button__container{
+    position: relative;
+    height: 2rem;
+    aspect-ratio: 1;
+    cursor: pointer;
+}
+
+.theme-button__icon{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--text-color-1);
+}
