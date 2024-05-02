@@ -19,18 +19,6 @@ const Nav = () => {
             >
                 Add product
             </Link>
-            <Link 
-                className="nav__link"
-                to={"/remove-product"}
-            >
-                Remove product
-            </Link>
-            <Link 
-                className="nav__link"
-                to={"/edit-product"}
-            >
-                Edit product
-            </Link>
         </section>
         <section className="nav--right">
             <ThemeButton />
