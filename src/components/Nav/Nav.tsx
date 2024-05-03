@@ -23,7 +23,6 @@ const Nav = () => {
         try{
             setLoading(true)
             await logoutUser();
-            window.location.reload();
         }catch(error){
             console.error(error)
         }

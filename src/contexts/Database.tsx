@@ -147,7 +147,11 @@ const DatabaseProvider = ({
                     .catch((error) => {
                         console.error(error)
                     })
-            }else setUsersDocument(undefined)
+            }else {
+                setUsersDocument(undefined)
+                setCurrentUser(undefined)
+            }
+            
             setLoading(false);
         })
         return unsubscribe
