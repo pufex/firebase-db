@@ -7,6 +7,8 @@ import AllProducts from "./pages/AllProducts/AllProducts"
 import AddProduct from "./pages/AddProduct/AddProduct"
 import Register from "./pages/Register/Register"
 import Login from "./pages/Login/Login"
+import Profile from "./pages/Profile/Profile"
+import AllUsers from "./pages/AllUsers/AllUsers"
 
 import DatabaseProvider from "./contexts/Database"
 import ThemeProvider from "./contexts/Theme"
@@ -38,8 +40,16 @@ function App() {
               element={<Register />}
             />
             <Route
-              path="/Login"
+              path="/login"
               element={<Login />}
+            />
+            <Route
+              path="/profile"
+              element={<Profile />}
+            />
+            <Route
+              path="/all-users"
+              element={<AllUsers />}
             />
         </Routes>
       </DatabaseProvider>

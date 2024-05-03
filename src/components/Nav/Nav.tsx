@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link, useLocation } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useDatabase } from "../../contexts/Database"
 
 import ThemeButton from "../ThemeButton/ThemeButton"
@@ -7,12 +7,15 @@ import ThemeButton from "../ThemeButton/ThemeButton"
 import "./Nav.css"
 const Nav = () => {
 
+    const navigate = useNavigate()
+    
     const [loading, setLoading] = useState<boolean>(false);
-
+    
     const { pathname } = useLocation();
 
     const { 
         currentUser,
+        usersDocument,
         logoutUser
     } = useDatabase();
 
@@ -41,17 +44,32 @@ const Nav = () => {
             >
                 Add product
             </Link>
+            <Link 
+                className="nav__link"
+                to={"/all-users"}
+            >
+                All Users
+            </Link>
         </section>
         <section className="nav--right">
             {
                 currentUser 
-                    ? <button
-                        className="btn nav__link"
-                        onClick={handleLogout}
-                        disabled={loading}
-                    >
-                        Log out
-                    </button>
+                    ? <>
+                        <span 
+                            className="nav__username"
+                            onClick={() => navigate(`/profile?user=${usersDocument?.id}`)}
+                        >
+                            {usersDocument?.username}
+                        </span>
+                        <button
+                            className="btn nav__link"
+                            onClick={handleLogout}
+                            disabled={loading}
+                        >
+                            Log out
+                        </button>
+                    </>
+                    
                     : <>
                         <Link
                             className="btn nav__link"

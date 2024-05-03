@@ -1,0 +1,38 @@
+.error-page__main{
+    width: 100%;
+    min-height: calc(100vh - 3rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.error-page__content{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.error-page__message-wrapper{
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.error-page__message{
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-color-1);
+}
+
+.error-page__sad-face{
+    color: var(--text-color-1);
+}
+
+.error-page__information{
+    text-align: center;
+    font-size: 1.25rem;
+    color: var(--text-color-1);
+}

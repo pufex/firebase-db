@@ -122,18 +122,18 @@ const Register = () => {
         if(shouldReturn) return
         
         
-        try{
-            setLoading(true)
-            const user = await registerUser(email.value, password.value)
-            console.log(user)
-            if(!redirectParam)
-                navigate("/")
-            else navigate(`/${redirectParam}`)
-        }catch(error){
-            console.error(error)
-            setError("Failed to register.")
-        }
-
+        
+        setLoading(true)
+        registerUser(username.value, email.value, password.value)
+            .then(() => {
+                if(redirectParam)
+                    navigate(`/${redirectParam}`)
+                else navigate("/")
+            })
+            .catch((error) => {
+                console.error(error)
+                setError("Failer to register.");
+            }) 
         setLoading(false)
 
     }

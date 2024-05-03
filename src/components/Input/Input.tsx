@@ -75,6 +75,7 @@ const Input = ({
                         className="btn input--lock"
                         onClick={switchShowPassword}
                         type="button"
+                        tabIndex={-1}
                     >
                         {
                             !showPassword 

@@ -11,6 +11,10 @@ import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { FaEdit } from "react-icons/fa";
 import { FaSun } from "react-icons/fa";
 import { FaMoon } from "react-icons/fa";
+import { IoIosSad } from "react-icons/io";
+import { HiOutlineDotsHorizontal } from "react-icons/hi";
+import { FaTrashCan } from "react-icons/fa6";
+import { MdReportProblem } from "react-icons/md";
 
 type IconsContextType = {
     IoIosLock: IconType,
@@ -21,6 +25,10 @@ type IconsContextType = {
     FaEdit: IconType,
     FaSun: IconType,
     FaMoon: IconType,
+    IoIosSad: IconType,
+    HiOutlineDotsHorizontal: IconType,
+    FaTrashCan: IconType,
+    MdReportProblem: IconType,
 }
 
 const IconsContext = createContext<IconsContextType | null>(null)
@@ -49,6 +57,10 @@ const IconsProvider = ({
             FaEdit,
             FaSun,
             FaMoon,
+            IoIosSad,
+            HiOutlineDotsHorizontal,
+            FaTrashCan,
+            MdReportProblem,
         }}
     >
         {children}

@@ -19,6 +19,7 @@ const AllProducts = () => {
 
     const fetchAllProducts = async () => {
         getAllProducts()
+        // @ts-expect-error: Won't let me import the promise's generics for this function.
             .then((snapshot) => {
                 const products: Product[] = [];
                 // @ts-expect-error: Won't let me import the promise's generics for this function.
@@ -27,6 +28,7 @@ const AllProducts = () => {
                 })
                 setProducts(products);
             })
+            // @ts-expect-error: Won't let me import the promise's generics for this function.
             .catch((error) => {
                 console.error(error)
                 setProducts("error")

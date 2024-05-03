@@ -35,3 +35,10 @@
 .nav__link--home{
     color: var(--text-color-1);
 }
+
+.nav__username{
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-color-1);
+    cursor: pointer;
+}

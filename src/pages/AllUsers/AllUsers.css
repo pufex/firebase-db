@@ -1,0 +1,34 @@
+.all-users__loading-container{
+    width: 100%;
+    height: calc(100vh - 3rem);
+}
+
+.all-users__main{
+    width: 100%;
+    min-height: calc(100vh - 3rem);
+    display: flex;
+    flex-direction: column;
+    padding: 3rem 1rem;
+}
+
+.all-users__header{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+}
+
+.all-users__heading{
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-color-1);
+}
+
+.all-users__users{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    list-style: none;
+}
+
