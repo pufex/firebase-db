@@ -301,7 +301,7 @@ const Profile = () => {
             </h1>
             {
                 currentUser?.uid == userDocument?.id
-                    && !showPostForm
+                    ? !showPostForm
                         ? <div className="profile-page__form-container">
                             <button 
                                 className="btn btn--primary"
@@ -357,6 +357,7 @@ const Profile = () => {
                                 </button>
                             </div>
                         </form>
+                    : null
             
             }
             <div className="profile-page__posts-container">
