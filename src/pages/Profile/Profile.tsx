@@ -171,7 +171,7 @@ const Profile = () => {
             await addPost(
                 currentUser?.uid!,
                 title.value,
-                description.value
+                content.value
             );
             switchShowPostForm();
             handleUserFetch();
