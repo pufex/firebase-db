@@ -43,6 +43,12 @@ const Profile = () => {
         setEditDescription(previous => !previous);
     }
 
+    useEffect(() => {
+        console.log(userId)
+        setUserStatus("loading")
+        handleUserFetch();
+    }, [userId])
+
     const [error, setError] = useState<boolean | string>(false);
     error
     const [loading, setLoading] = useState<boolean>(false);
