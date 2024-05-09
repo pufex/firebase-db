@@ -3,3 +3,9 @@ export type InputTextStateType = {
     isError: boolean,
     errorMessage: string,
 }
+
+export type UseInputOptions = {
+    defaultValue?: string,
+    defaultErrorState?: boolean,
+    defaultErrorMessage?: string,
+}

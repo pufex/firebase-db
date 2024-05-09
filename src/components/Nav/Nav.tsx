@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link, useLocation, useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useDatabase } from "../../contexts/Database"
 
 import ThemeButton from "../ThemeButton/ThemeButton"
@@ -11,8 +11,6 @@ const Nav = () => {
     
     const [loading, setLoading] = useState<boolean>(false);
     
-    const { pathname } = useLocation();
-
     const { 
         currentUser,
         usersDocument,
@@ -26,7 +24,7 @@ const Nav = () => {
         }catch(error){
             console.error(error)
         }
-        setLoading(true)
+        setLoading(false)
     }
 
     return <nav className="nav">
@@ -37,12 +35,15 @@ const Nav = () => {
             >
                 All products
             </Link>
-            <Link 
-                className="nav__link"
-                to={"/add-product"}
-            >
-                Add product
-            </Link>
+            {
+                currentUser?.isAdmin
+                    && <Link 
+                        className="nav__link"
+                        to={"/add-product"}
+                    >
+                        Add product
+                    </Link>
+            }
             <Link 
                 className="nav__link"
                 to={"/all-users"}
@@ -58,7 +59,15 @@ const Nav = () => {
                             className="nav__username"
                             onClick={() => navigate(`/profile?user=${usersDocument?.id}`)}
                         >
-                            {usersDocument?.username}
+                            {
+                                currentUser?.isAdmin
+                                    && <span className="nav__username-role">
+                                        ADMIN
+                                    </span>   
+                            }
+                            <span className="nav__username-content">
+                                {usersDocument?.username}
+                            </span>
                         </span>
                         <button
                             className="btn nav__link"
@@ -72,13 +81,13 @@ const Nav = () => {
                     : <>
                         <Link
                             className="btn nav__link"
-                            to={`/register?redirect=${pathname.slice(1)}`}
+                            to={`/register?redirect=true`}
                         >
                             Register
                         </Link>
                         <Link
                             className="btn nav__link"
-                            to={`/login?redirect=${pathname.slice(1)}`}
+                            to={`/login?redirect=true`}
                         >
                             Login
                         </Link>

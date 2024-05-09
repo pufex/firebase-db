@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom"
 
+import Button from "../Button/Button"
+
 import "./RowUser.css"
 
 type RowUserProps = {
@@ -28,12 +30,13 @@ const RowUser = ({
             </h1>
         </div>
         <div className="row-user--right">
-            <button 
-                className="btn btn--primary"
+            <Button
+                type="primary"
+                role="button"
                 onClick={() => navigate(`/profile?user=${userId}`)}
             >
                 See profile
-            </button>
+            </Button>
         </div>
     </li>
 }

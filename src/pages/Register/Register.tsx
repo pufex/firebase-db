@@ -1,14 +1,14 @@
-import type { ChangeEvent, FormEvent } from "react"
-import type { InputTextStateType } from "../../types/types"
+import type { FormEvent } from "react"
 
 import { useState} from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams, Link } from "react-router-dom"
+import { useDatabase } from "../../contexts/Database"
+import { useInput } from "../../hooks/useInput"
 
+import ErrorPage from "../ErrorPage/ErrorPage"
 import Form from "../../components/Form/Form"
 import Input from "../../components/Input/Input"
-
-import { useDatabase } from "../../contexts/Database"
-import { useSearchParams } from "react-router-dom"
+import Button from "../../components/Button/Button"
 
 import "./Register.css"
 
@@ -16,7 +16,10 @@ const Register = () => {
 
     const navigate = useNavigate();
 
-    const { registerUser } = useDatabase()
+    const { 
+        currentUser,
+        registerUser 
+    } = useDatabase()
 
     const [searchParams] = useSearchParams();
 
@@ -24,106 +27,58 @@ const Register = () => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<boolean | string>(false)
+    const [success, setSuccess] = useState<boolean>(false);
 
-    const [username, setUsername] = useState<InputTextStateType>({
-        value: "",
-        isError: false,
-        errorMessage: "",
-    })
+    const [username, handleUsernameChange, setUsernameError] = useInput({})
+    const [email, handleEmailChange, setEmailError] = useInput({})
+    const [password, handlePasswordChange, setPasswordError] = useInput({})
+    const [confirmPassword, handleConfirmPasswordChange, setConfirmPasswordError] = useInput({})
 
-    const handleUsernameChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setUsername({...username, value})
-    }
-
-    const [email, setEmail] = useState<InputTextStateType>({
-        value: "",
-        isError: false,
-        errorMessage: "",
-    })
-
-    const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setEmail({...email, value})
-    }
-
-    const [password, setPassword] = useState<InputTextStateType>({
-        value: "",
-        isError: false,
-        errorMessage: "",
-    })
-
-    const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setPassword({...password, value})
-    }
-
-    const [confirmPassword, setConfirmPassword] = useState<InputTextStateType>({
-        value: "",
-        isError: false,
-        errorMessage: "",
-    })
-
-    const handleConfirmPasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setConfirmPassword({...confirmPassword, value})
-    }
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setSuccess(false)
         setError(false)
-        setUsername({...username, isError: false});
-        setEmail({...email, isError: false});
-        setPassword({...password, isError: false});
+        setUsernameError()
+        setEmailError()
+        setPasswordError()
+        setConfirmPasswordError()
 
         let shouldReturn = false;
 
         if(username.value.length < 6){
             shouldReturn = true;
-            setUsername({...username, 
-                isError: true,
-                errorMessage: "Min. 6 characters"
-            })
+            setUsernameError(true, "Min. 6 characters")
+
         }
 
         if(!email.value.length){
             shouldReturn = true;
-            setEmail({...email, 
-                isError: true,
-                errorMessage: "Can't be empty"
-            })
-
+            setEmailError(true, "Can't be empty")
         }else if(!email.value.includes("@")){
             shouldReturn = true;
-            setEmail({...email,
-                isError: true,
-                errorMessage: "Invalid email"
-            })  
+            setEmailError(true, "Invalid email")  
         }
 
         if(password.value.length < 8){
             shouldReturn = true;
-            setPassword({...password, 
-                isError: true,
-                errorMessage: "Min. 8 characters"
-            })
+            setPasswordError(true, "Min. 8 characters")
         }
 
-        
-        if(password.value != confirmPassword.value){
+        if(confirmPassword.value.length <= 0){
+            setConfirmPasswordError(true, "Can't be empty")
             shouldReturn = true;
-            setConfirmPassword({...confirmPassword,
-                isError: true,
-                errorMessage: "Doesn't match"
-            })
+        }
+        else if(password.value != confirmPassword.value){
+            shouldReturn = true;
+            setConfirmPasswordError(true, "Doesn't match")
             setError("Passwords don't match")
         }
         
         if(shouldReturn) return
         
-        
-        
         setLoading(true)
+        setSuccess(true)
         registerUser(username.value, email.value, password.value)
             .then(() => {
                 if(redirectParam)
@@ -133,11 +88,15 @@ const Register = () => {
             .catch((error) => {
                 console.error(error)
                 setError("Failer to register.");
+                setSuccess(false)
             }) 
         setLoading(false)
 
     }
 
+
+    if(currentUser && !success)
+        return <ErrorPage />
 
     return <main className="register__main">
         <section className="register__form">
@@ -193,13 +152,24 @@ const Register = () => {
                         Confirm Password
                     </Input>
                 </div>
-                <button
-                    type="submit"
-                    className="btn btn--primary btn--in-register"
-                    disabled={loading}
-                >
-                    Register
-                </button>
+                <div className="project--form__submit-container">
+                    <Button
+                        type="primary"
+                        role="submit"
+                        loading={loading}
+                        disabled={loading}
+                    >
+                        Register
+                    </Button>
+                </div>
+                <div className="register__links">
+                    <Link
+                        to={"/login"}
+                        className="link link--small"
+                    >
+                        Already registered? Log in!
+                    </Link>
+                </div>
             </Form>
         </section>
     </main>

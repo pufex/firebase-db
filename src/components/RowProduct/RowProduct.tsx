@@ -1,13 +1,17 @@
-import type { ChangeEvent, FormEvent } from "react"
-import type { InputTextStateType } from "../../types/types"
+import type { MouseEvent, FormEvent } from "react"
 import type { Product } from "../../contexts/Database"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { useDatabase } from "../../contexts/Database"
 import { useIconsContext } from "../../contexts/Icon"
+import { useInput } from "../../hooks/useInput"
 
 import Form from "../Form/Form"
 import Input from "../Input/Input"
+import Button from "../Button/Button"
+import LoadingIcon from "../../components/LoadingIcon/LoadingIcon";
+
+import { mergeClasses } from "../../utils/mergeClasses"
 
 import "./RowProduct.css"
 
@@ -19,8 +23,6 @@ type RowProductProps = Pick<
 > & { 
     index: number,
     onDeleteError: () => void,
-    onDelete: () => void,
-    onEdit: () => void,
     onEditError: () => void,
 }
 
@@ -29,84 +31,98 @@ const RowProduct = ({
     name,
     price,
     index,
-    onEdit,
     onEditError,
     onDeleteError,
-    onDelete,
 }: RowProductProps) => {
 
-    
     const { 
         IoClose,
         FaEdit,
     } = useIconsContext()
     const { 
+        currentUser,
         removeProduct,
         editProduct
     } = useDatabase();
 
     const [error, setError] = useState<boolean | string>(false);
-    const [loading, setLoading] = useState<boolean>(false)
-    const [editToggle, setEditToggle] = useState<boolean>(false)
+    const [loading, setLoading] = useState<boolean>(false);
+    const [editToggle, setEditToggle] = useState<boolean>(false);
 
+    const [busyDeleting, setBusyDeleting] = useState<boolean>(false);
+    
     const switchEditToggle = () => {
         setEditToggle(previous => !previous)
     }
 
-    const [newName, setNewName] = useState<InputTextStateType>({
-        value: "",
-        isError: false,
-        errorMessage: "",
-    })
+    const [newName, handleNameChange, setNameError] = useInput({defaultValue: name})
+    const [newPrice, handlePriceChange, setPriceError] = useInput({defaultValue: price.toString()})
 
-    const handleNewNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setNewName({...newName, value})
-    }
 
     const handleEditFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError(false)
-        setNewName({...newName, isError: false})
+        setNameError()
+        setPriceError()
+
+        let shouldReturn = false;
 
         if(!newName.value.length){
-            setNewName({...newName, 
-                isError: true,
-                errorMessage: "Can't be empty"
-            })
-            return;
+            shouldReturn = true;
+            setNameError(true, "Can't be empty")
         }
 
-        
+        if(!newPrice.value.length){
+            shouldReturn = true;
+            setPriceError(true, "Can't be empty")
+        }
+        else if(isNaN(parseFloat(newPrice.value))){
+            shouldReturn = true;
+            setPriceError(true, "Invalid price")
+        }
+
+        if(shouldReturn) return;
+
         try{
             setLoading(true)
-            await editProduct(id, newName.value);
-            onEdit();
+            await editProduct(id, newName.value, parseFloat(newPrice.value));
             switchEditToggle()
         }catch(error){
             console.error(error)
             setError("Failed to edit the product");
             onEditError();
         }
-
+        
         setLoading(false)
     }
+    
+    
+    const currentButton = useRef<HTMLButtonElement>();
+    const removingProductHandler = async (e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => {
 
+        currentButton.current = e.currentTarget
+        const button: HTMLButtonElement = currentButton.current
 
-
-    const removingProductHandler = async () => {
+        
         try{
+            setBusyDeleting(true);
             setLoading(true);
+            button.classList.add("loading")
             await removeProduct(id);
-            onDelete();
         }catch(error){
             onDeleteError();
         }
         setLoading(false);
+        setBusyDeleting(false);
     }
 
     return <>
-        <li className="row-product__item">
+        <li 
+            className={mergeClasses(
+                "row-product__item",
+                currentUser?.isAdmin ? "admin" : ""
+            )}
+        >
             <div className="row-product--left">
                 <span className="row-product__index">
                     {index}
@@ -122,28 +138,32 @@ const RowProduct = ({
                     {`$${price.toFixed(2)}`}
                 </span>
             </div>
-            <div className="row-product--right">
-                <button 
-                    className="btn row-product__option"
-                    onClick={switchEditToggle}
-                    disabled={loading}
-                >
-                    <FaEdit
-                        size={21}
-                        className="row-product__option-icon row-product__edit-icon"
-                    />
-                </button>
-                <button 
-                    className="btn row-product__option"
-                    onClick={removingProductHandler}
-                    disabled={loading}
-                >
-                    <IoClose
-                        size={30}
-                        className="row-product__option-icon row-product__remove-icon"
-                    />
-                </button>
-            </div>
+            {
+                currentUser?.isAdmin
+                    && <div className="row-product--right">
+                        <button 
+                            className="btn row-product__option"
+                            onClick={switchEditToggle}
+                            disabled={loading}
+                        >
+                            <FaEdit
+                                size={21}
+                                className="row-product__option-icon row-product__edit-icon"
+                            />
+                        </button>
+                        <button 
+                            className="btn row-product__option"
+                            onClick={(e) => removingProductHandler(e)}
+                            disabled={busyDeleting}
+                        >
+                            <IoClose
+                                size={30}
+                                className="row-product__option-icon row-product__remove-icon"
+                            />
+                            <LoadingIcon />
+                        </button>
+                    </div>
+            }
         </li>
         {
             editToggle
@@ -160,27 +180,40 @@ const RowProduct = ({
                             <Input
                                 placeholder={"New name for item"}
                                 value={newName.value}
-                                onChange={handleNewNameChange}
+                                onChange={handleNameChange}
                                 isError={newName.isError}
                                 errorMessage={newName.errorMessage}
                             >
                                 New name
                             </Input>
                         </div>
+                        <div className="row-product__edit-form__input-container">
+                            <Input
+                                placeholder={"New name for item"}
+                                value={newPrice.value}
+                                onChange={handlePriceChange}
+                                isError={newPrice.isError}
+                                errorMessage={newPrice.errorMessage}
+                            >
+                                New price
+                            </Input>
+                        </div>
                         <div className="row-product__edit-form__options">
-                            <button 
-                                className="btn btn--primary"
-                                type="submit"
+                            <Button 
+                                type="primary"
+                                role="submit"
+                                loading={loading}
+                                disabled={loading}
                             >
                                 Submit
-                            </button>
-                            <button
-                                className="btn btn--primary"
+                            </Button>
+                            <Button
+                                type="primary"
+                                role="button"
                                 onClick={switchEditToggle}
-                                type="button"
                             >
                                 Cancel
-                            </button>
+                            </Button>
                         </div>
                     </Form>
 

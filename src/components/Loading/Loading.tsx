@@ -1,18 +1,11 @@
-import { useIconsContext } from "../../contexts/Icon"
+import LoadingIcon from "../LoadingIcon/LoadingIcon";
 
 import "./Loading.css"
 
 const Loading = () => {
-  
-    const { AiOutlineLoading3Quarters } = useIconsContext();
 
     return <div className="loading__container">
-        <div className="loading__loading-container">
-            <AiOutlineLoading3Quarters 
-                size={30}
-                className="loading__loading"
-            />
-        </div>
+        <LoadingIcon />
     </div>
 }
 

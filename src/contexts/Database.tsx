@@ -9,7 +9,8 @@ import {
     productsCollection, 
     usersCollection,
     auth, 
-    db 
+    db,
+    functions
 } from "../firebase/firebase"
 import { 
     addDoc, 
@@ -21,14 +22,18 @@ import {
     query,
     doc,
     serverTimestamp,
-    orderBy,
-    arrayUnion
+    arrayUnion,
+    onSnapshot
 } from "firebase/firestore"
 import {
     createUserWithEmailAndPassword,
     signOut,
-    signInWithEmailAndPassword
+    signInWithEmailAndPassword,
+    sendPasswordResetEmail,
 } from "firebase/auth"
+import { httpsCallable } from "firebase/functions"
+
+export type GiveAdminFunction = (email: string) => Promise<unknown>
 
 export type Product = {
     id: string,
@@ -48,9 +53,8 @@ export type RemoveProductFunction = (
 export type UpdateProductFunction = (
     id: string,
     newName: string,
+    newPrice: number,
 ) => Promise<unknown>
-
-export type GetAllProductsFunction = () => void
 
 export type PostType = {
     title: string,
@@ -79,6 +83,8 @@ export type LoginUserFunction = (
     password: string,
 ) => Promise<UserCredential>
 
+export type ResetPasswordFunction = (email: string) => Promise<unknown>
+
 export type GetUserFunction = (
     id: string,
 ) => Promise<unknown>
@@ -97,19 +103,21 @@ export type AddPostFunction = (
 ) => Promise<unknown>
 
 export type DatabaseContextType = {
-    currentUser?: User,
+    products: Product[],
+    currentUser?: User & {isAdmin: boolean | undefined},
     usersDocument: UsersDocumentType,
     addNewProduct: AddProductFunction
     removeProduct: RemoveProductFunction,
     editProduct: UpdateProductFunction,
-    getAllProducts: GetAllProductsFunction,
     registerUser: RegisterUserFunction,
     logoutUser: LogoutUserFunction,
     loginUser: LoginUserFunction,
+    resetPassword: ResetPasswordFunction,
     getUser: GetUserFunction,
     getAllUsers: GetAllUsersFunction,
     changeUserDescription: ChangeUserDescriptionFunction,
     addPost: AddPostFunction,
+    giveAdmin: GiveAdminFunction,
 }
 
 const DatabaseContext = createContext<DatabaseContextType | null>(null)
@@ -129,15 +137,35 @@ const DatabaseProvider = ({
     children,
 }:DatabaseProps) => {
     
-    const [currentUser, setCurrentUser] = useState<User | undefined>();
+    const [currentUser, setCurrentUser] = useState<(User & {isAdmin: boolean}) | undefined>();
     const [usersDocument, setUsersDocument] = useState<UsersDocumentType>();
-    const [loading, setLoading] = useState<boolean>(true);
+    const [loadingUser, setLoadingUser] = useState<boolean>(true);
+
+    const [loadingProducts, setLoadingProducts] = useState<boolean>(true);
+    const [products, setProducts] = useState<Product[]>([])
+
+    const addAdminRole = httpsCallable(functions, "addAdminRole")
+
+    const giveAdmin: GiveAdminFunction = (email) => {
+        return addAdminRole({email})
+    }
+
+    useEffect(() => {
+        console.log(currentUser)
+    }, [currentUser])
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
             if(user){
+                user.getIdTokenResult()
+                    .then((result) => {
+                        // @ts-expect-error: unknown moment
+                        setCurrentUser({...user, isAdmin: result.claims.isAdmin})
+                    })
+                    .catch((err) => {
+                        console.error(err)
+                    })
                 const usersDocumentRef = doc(usersCollection, user.uid)
-                setCurrentUser(user);
                 getDoc(usersDocumentRef)
                     .then((doc) => {
                         // @ts-expect-error: This is gonna be valid, trust me.
@@ -151,8 +179,7 @@ const DatabaseProvider = ({
                 setUsersDocument(undefined)
                 setCurrentUser(undefined)
             }
-            
-            setLoading(false);
+            setLoadingUser(false);
         })
         return unsubscribe
     }, [])
@@ -174,19 +201,25 @@ const DatabaseProvider = ({
         return deleteDoc(product)
     }
     
-    const editProduct: UpdateProductFunction = (id, newName) => {
+    const editProduct: UpdateProductFunction = (id, newName, newPrice) => {
         const product = doc(productsCollection, id)
-        return updateDoc(product, { name: newName })
+        return updateDoc(product, { name: newName, price: newPrice })
     }
 
-    const getAllProducts: GetAllProductsFunction = () => {
-        const productsQuery = query(
-            productsCollection,
-            orderBy("createdAt", "desc")
-        )
-
-        return getDocs(productsQuery);
-    } 
+    useEffect(() => {
+        const unsub = onSnapshot(productsCollection, (snapshot) => {
+            const productsArr: Product[] = []
+            snapshot.docs.forEach((doc) => {
+                // @ts-expect-error
+                productsArr.push({...doc.data(), id: doc.id})
+            })
+            setProducts(productsArr);
+            setLoadingProducts(false)
+        }, (error) => {
+            console.error(error)
+        })
+        return unsub
+    }, [])
 
     const registerUser: RegisterUserFunction = async (username, email, password) => {
         try{
@@ -214,6 +247,10 @@ const DatabaseProvider = ({
 
     const loginUser: LoginUserFunction = (email, password) => {
         return signInWithEmailAndPassword(auth, email, password)
+    }
+
+    const resetPassword: ResetPasswordFunction = (email) => {
+        return sendPasswordResetEmail(auth, email);
     }
 
     const getUser: GetUserFunction = (id: string) => {
@@ -253,26 +290,29 @@ const DatabaseProvider = ({
     }
 
     const value: DatabaseContextType = {
+        products,
         addNewProduct,
         removeProduct,
         editProduct,
-        getAllProducts,
         currentUser,
         usersDocument,
         registerUser,
         logoutUser,
         loginUser,
+        resetPassword,
         getUser,
         getAllUsers,
         changeUserDescription,
         addPost,
+        giveAdmin,
     }
 
     return <DatabaseContext.Provider
         value={value}
     >
         {
-            loading 
+            loadingUser || 
+            loadingProducts 
              ? <LoadingPage />
              : children
         }

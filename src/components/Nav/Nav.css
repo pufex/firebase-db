@@ -37,8 +37,20 @@
 }
 
 .nav__username{
+    display: flex;
+    align-content: center;
+    cursor: pointer;
+}
+
+.nav__username-role{
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: red;
+    margin-right: 0.5rem;
+}
+
+.nav__username-content{
     font-size: 1.25rem;
     font-weight: 600;
     color: var(--text-color-1);
-    cursor: pointer;
 }

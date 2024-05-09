@@ -1,16 +1,17 @@
-import type { ChangeEvent, FormEvent } from "react"
-import type { InputTextStateType } from "../../types/types"
+import type { FormEvent } from "react"
 
 import { useState, useEffect, useRef } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
+import { useInput } from "../../hooks/useInput"
+import { useDatabase } from "../../contexts/Database"
+
+import ErrorPage from "../ErrorPage/ErrorPage"
 
 import Form from "../../components/Form/Form"
 import Input from "../../components/Input/Input"
 import Checkbox from "../../components/Checkbox/Checkbox"
 import Alert from "../../components/Alert/Alert"
-
-import { useDatabase } from "../../contexts/Database"
-import { useSearchParams } from "react-router-dom"
+import Button from "../../components/Button/Button"
 
 import "./AddProduct.css"
 
@@ -18,15 +19,18 @@ const AddProduct = () => {
 
     const navigate = useNavigate();
 
-    const {addNewProduct} = useDatabase()
+    const {
+        currentUser,
+        addNewProduct
+    } = useDatabase()
 
     const [searchParams] = useSearchParams();
-
     const redirectParam = searchParams.get("redirect")
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<boolean | string>(false)
     const [success, setSuccess] = useState<boolean>(false) 
+
 
 
     // @ts-expect-error: Typescript moment
@@ -59,57 +63,29 @@ const AddProduct = () => {
         setRedirect(previous => !previous)
     }
 
-    const [name, setName] = useState<InputTextStateType>({
-        value: "",
-        isError: false,
-        errorMessage: "",
-    })
-
-    const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setName({...name, value})
-    }
-
-    const [price, setPrice] = useState<InputTextStateType>({
-        value: "",
-        isError: false,
-        errorMessage: "",
-    })
-
-    const handlePriceChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setPrice({...price, value})
-    }
+    const [name, handleNameChange, setNameError, resetName] = useInput({})
+    const [price, handlePriceChange, setPriceError, resetPrice] = useInput({})
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError(false)
-        setName({...name, isError: false});
-        setPrice({...price, isError: false});
+        setNameError();
+        setPriceError();
 
         let shouldReturn = false;
 
         if(!name.value.length){
             shouldReturn = true;
-            setName({...name, 
-                isError: true,
-                errorMessage: "Can't be empty"
-            })
+            setNameError(true, "Can't be empty")
         }
 
         if(!price.value.length){
             shouldReturn = true;
-            setPrice({...price, 
-                isError: true,
-                errorMessage: "Can't be empty"
-            })
+            setPriceError(true, "Can't be empty")
         }
         else if(isNaN(parseFloat(price.value))){
             shouldReturn = true;
-            setPrice({...price,
-                isError: true,
-                errorMessage: "Not a number",
-            })
+            setPriceError(true, "Not a number")
         }
 
         if(shouldReturn) return
@@ -122,13 +98,15 @@ const AddProduct = () => {
             )
 
             if(redirect)
-                !redirectParam
+                !redirectParam || redirectParam !== "true"
                     ? navigate("/")
-                    : navigate(`/${redirectParam}`)
+                    : navigate(-1)
             else {
                 setSuccess(true);
-                setName({...name, value: ""})
-                setPrice({...price, value: ""})
+                resetName()
+                resetPrice()
+                setNameError()
+                setPriceError()
             }
 
         }catch(err){
@@ -140,6 +118,7 @@ const AddProduct = () => {
 
     }
 
+    if(!currentUser?.isAdmin) return <ErrorPage />
 
     return <main className="add-product__main">
         <section className="add-product__form">
@@ -190,13 +169,14 @@ const AddProduct = () => {
                         </div>
                         : <></>
                 }
-                <button
-                    type="submit"
-                    className="btn btn--primary btn--in-add-product"
+                <Button
+                    type="primary"
+                    role="submit"
                     disabled={loading}
+                    loading={loading}
                 >
                     Add product
-                </button>
+                </Button>
             </Form>
         </section>
     </main>

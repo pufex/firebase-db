@@ -12,7 +12,7 @@ const ErrorPage = () => {
 
     const { IoIosSad } = useIconsContext();
 
-    const [seconds, setSeconds] = useState<number>(500)
+    const [seconds, setSeconds] = useState<number>(5)
     // @ts-expect-error: ???
     const intervalRef = useRef<Interval | undefined>();
 

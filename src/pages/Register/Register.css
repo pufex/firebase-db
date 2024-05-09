@@ -27,3 +27,10 @@
     width: 100%;
     margin-top: 1rem;
 }
+
+.register__links{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 2rem;
+}

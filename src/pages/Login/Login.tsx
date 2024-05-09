@@ -1,14 +1,17 @@
-import type { ChangeEvent, FormEvent } from "react"
-import type { InputTextStateType } from "../../types/types"
+import type { FormEvent } from "react"
 
 import { useState} from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
+import { useInput } from "../../hooks/useInput"
+import { useDatabase } from "../../contexts/Database"
 
+import { Link } from "react-router-dom"
+import ErrorPage from "../ErrorPage/ErrorPage"
 import Form from "../../components/Form/Form"
 import Input from "../../components/Input/Input"
+import Button from "../../components/Button/Button"
 
-import { useDatabase } from "../../contexts/Database"
-import { useSearchParams } from "react-router-dom"
+import { validateEmail } from "../../utils/validations"
 
 import "./Login.css"
 
@@ -16,7 +19,10 @@ const Login = () => {
 
     const navigate = useNavigate();
 
-    const { loginUser } = useDatabase()
+    const { 
+        currentUser,
+        loginUser 
+    } = useDatabase()
 
     const [searchParams] = useSearchParams();
 
@@ -24,71 +30,41 @@ const Login = () => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<boolean | string>(false)
+    const [success, setSuccess] = useState<boolean>(false)
 
-    const [email, setEmail] = useState<InputTextStateType>({
-        value: "",
-        isError: false,
-        errorMessage: "",
-    })
-
-    const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setEmail({...email, value})
-    }
-
-    const [password, setPassword] = useState<InputTextStateType>({
-        value: "",
-        isError: false,
-        errorMessage: "",
-    })
-
-    const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setPassword({...password, value})
-    }
-
+    const [email, handleEmailChange, setEmailError] = useInput({});
+    const [password, handlePasswordChange, setPasswordError] = useInput({})
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setSuccess(false)
         setError(false)
-        setEmail({...email, isError: false});
-        setPassword({...password, isError: false});
-
+        setEmailError();
+        setPasswordError();
+        
         let shouldReturn = false;
 
-        if(!email.value.length){
+        if(validateEmail(email.value)){
             shouldReturn = true;
-            setEmail({...email, 
-                isError: true,
-                errorMessage: "Can't be empty"
-            })
-
-        }else if(!email.value.includes("@")){
-            shouldReturn = true;
-            setEmail({...email,
-                isError: true,
-                errorMessage: "Invalid email"
-            })  
+            setEmailError(true, "Invalid email")
         }
 
         if(password.value.length < 8){
             shouldReturn = true;
-            setPassword({...password, 
-                isError: true,
-                errorMessage: "Min. 8 characters"
-            })
+            setPasswordError(true, "Min. 8 characters")
         }
         
         if(shouldReturn) return
         
-        
         try{
             setLoading(true)
+            setSuccess(true)
             await loginUser(email.value, password.value)
-            if(!redirectParam)
+            if(!redirectParam || redirectParam !== "true")
                 navigate("/")
-            else navigate(`/${redirectParam}`)
+            else navigate(-1)
         }catch(error){
+            setSuccess(false)
             console.error(error)
             setError("Failed to log in.")
         }
@@ -97,6 +73,8 @@ const Login = () => {
 
     }
 
+    if(currentUser && !success)
+        return <ErrorPage />
 
     return <main className="login__main">
         <section className="login__form">
@@ -129,13 +107,30 @@ const Login = () => {
                         Password
                     </Input>
                 </div>
-                <button
-                    type="submit"
-                    className="btn btn--primary btn--in-login"
-                    disabled={loading}
-                >
-                    Log In
-                </button>
+                <div className="project--form__submit-container">
+                    <Button
+                        type="primary"
+                        role="submit"
+                        loading={loading}
+                        disabled={loading}
+                    >
+                        Log In
+                    </Button>
+                </div>
+                <div className="login-form__links">
+                    <Link
+                        to={"/reset-password"}
+                        className="link link--small"
+                    >
+                        Forgot password?
+                    </Link>
+                    <Link
+                        to={"/register"}
+                        className="link link--small"
+                    >
+                        Don't have an account? Register now!
+                    </Link>
+                </div>
             </Form>
         </section>
     </main>

@@ -54,50 +54,16 @@ body{
     background-repeat: no-repeat;
 }
 
-.btn--primary{
-    display: grid;
-    place-items: center;
-    height: 3rem;
-    width: 100%;
-    background-color: var(--element-color-2);
-    border-radius: 5px;
-    font-size: 1.25rem;
-    color: var(--text-color-2);
-    font-weight: 600;
-    border: 1px solid var(--outline-color-2);
-    box-shadow: 0 0 6px var(--outline-color-2);
-    transition: 30ms transform linear;
-    padding-inline: 1rem;
-}
-
-.btn--primary:hover{
-    filter: brightness(1.05)
-}
-
-.btn--primary:active{
-    filter: brightness(0.975);
-    box-shadow: 
-        inset -2px 2px 5px var(--outline-color-2)
-        0 0 6px var(--outline-color-2);
-    transform: scale(0.975);
-}
-
-.btn--primary.btn--red{
-    background-color: var(--element-color-3);
-    border-color: var(--outline-color-3)
-}
-
-.btn--primary.btn--red:active{
-    box-shadow: 
-    inset -2px 2px 5px var(--outline-color-3)
-        0 0 6px var(--outline-color-3);
-}
-
 .link{
     color: var(--link-color);
     font-weight: 600;
     font-size: 1.25rem;
     text-decoration: none;
+}
+
+.link--small{
+    font-size: 1.1rem;
+    text-align: center;
 }
 
 .project--form__input-container{
@@ -107,4 +73,18 @@ body{
 .project--form__checkbox-container{
     margin-top: 2rem;
     width: 100%;
+}
+
+.project--form__submit-container{
+    width: 100%;
+    margin-top: 2rem;
+}
+
+.project--form__submit-container-2{
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.admin__give-admin{
+    max-width: 200px;
 }

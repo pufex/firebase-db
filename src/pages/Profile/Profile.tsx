@@ -1,19 +1,20 @@
-import type{ InputTextStateType } from "../../types/types";
 import type { UsersDocumentType } from "../../contexts/Database";
-import type { ChangeEvent, FormEvent } from "react";
+import type { FormEvent } from "react";
 
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useIconsContext } from "../../contexts/Icon";
+import { useInput } from "../../hooks/useInput";
 import { useDatabase } from "../../contexts/Database"
 
 import Loading from "../../components/Loading/Loading";
 import Post from "../../components/Post/Post";
 import Input from "../../components/Input/Input";
+import Button from "../../components/Button/Button";
 
 import ErrorPage from "../ErrorPage/ErrorPage";
 
 import "./Profile.css"
-import { useIconsContext } from "../../contexts/Icon";
 
 const Profile = () => {
 
@@ -54,38 +55,16 @@ const Profile = () => {
     const [loading, setLoading] = useState<boolean>(false);
 
 
-    const [description, setDescription] = useState<InputTextStateType>({
-        value: userDocument?.description || "",
-        isError: false,
-        errorMessage: ""
-    })
-
-    const handleDescriptionChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        if(value.length <= 200){
-            setDescription({...description, value})
-        }else{
-            setDescription({...description,
-                isError: true,
-                errorMessage: "Max. 200 characters"
-            })
-        }
-
-    }
+    const [description, handleDescriptionChange, changeDescriptionError] = useInput({defaultValue: userDocument?.description});
 
     const handleDescriptionSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError(false);
-        setDescription({...description, isError: false})
+        changeDescriptionError();
 
-        if(!description.value.length){
-            setDescription({...description, 
-                isError: true,
-                errorMessage: "Can't be empty"
-            })
-            return;
-        }
-
+        if(!description.value.length)
+            return changeDescriptionError(true, "Can't leave empty")
+        
         try{
             setLoading(true);
             await changeUserDescription(
@@ -102,72 +81,31 @@ const Profile = () => {
         setLoading(false)
     }
 
-    const [showPostForm, setShowPostForm] = useState<boolean>(true);
+    const [showPostForm, setShowPostForm] = useState<boolean>(false);
 
     const switchShowPostForm = () => {
         setShowPostForm(previous => !previous)
     }
 
-    const [title, setTitle] = useState<InputTextStateType>({
-        value: "",
-        isError: false,
-        errorMessage: "",
-    })
-
-    const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        if(value.length > 80){
-            setTitle({...title, 
-                isError: true,
-                errorMessage: "Max. 80 characters"
-            })
-        }else{            
-            setTitle({...title, value})
-        }
-
-    }
-
-    const [content, setContent] = useState<InputTextStateType>({
-        value: "",
-        isError: false,
-        errorMessage: "",
-    })
-
-    const handleContentChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        if(value.length > 200){
-            setContent({...content, 
-                isError: true,
-                errorMessage: "Max. 200 characters"
-            })
-        }else{
-            setContent({...content, value})
-        }
-
-    }
+    const [title, handleTitleChange, changeTitleError] = useInput({})
+    const [content, handleContentChange, changeContentError] = useInput({})
 
     const handlePostSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError(false)
-        setTitle({...title, isError: false})
-        setContent({...content, isError: false})
+        changeTitleError()
+        changeContentError()
 
         let shouldReturn = false;
 
         if(title.value.length < 15){
             shouldReturn = true;
-            setTitle({...title,
-                isError: true,
-                errorMessage: "Min. 15 characters"
-            })
+            changeTitleError(true, "Min. 15 characters");
         }
 
         if(content.value.length < 10){
             shouldReturn = true;
-            setContent({...title,
-                isError: true,
-                errorMessage: "Min. 10 characters"
-            })
+            changeContentError(true, "Min. 10 characters")
         }
 
         if(shouldReturn) return;
@@ -206,9 +144,6 @@ const Profile = () => {
         handleUserFetch();
     }, [])
 
-    useEffect(() => {
-        console.log(userDocument)
-    }, [userDocument])
 
     const postsList = useMemo(() => {
         if(userDocument)
@@ -230,7 +165,7 @@ const Profile = () => {
 
     if(userStatus == "loading")
     return <main className="profile-page__loading-container">
-        <Loading></Loading>
+        <Loading />
     </main>
 
     if(userStatus == "error")
@@ -282,21 +217,21 @@ const Profile = () => {
                             </Input>
                         </div>
                         <div className="profile-page__description-form__buttons">
-                            <button 
-                                className="btn btn--primary"
-                                type="submit"
+                            <Button
+                                type="primary"
+                                role="submit"
                                 disabled={loading}
-                                >
+                                loading={loading}
+                            >
                                 Change
-                            </button>
-                            <button 
-                                className="btn btn--primary"
-                                type="button"
+                            </Button>
+                            <Button
+                                type="primary"
+                                role="button"
                                 onClick={switchDescriptionEdit}
-                                disabled={loading}
                             >
                                 Cancel
-                            </button>
+                            </Button>
                         </div>
                     </form>
             }
@@ -309,12 +244,13 @@ const Profile = () => {
                 currentUser?.uid == userDocument?.id
                     ? !showPostForm
                         ? <div className="profile-page__form-container">
-                            <button 
-                                className="btn btn--primary"
+                            <Button
+                                type="primary"
+                                role="button"
                                 onClick={switchShowPostForm}
                             >
                                 Add Post
-                            </button>
+                            </Button>
                         </div>
                         : <form
                             className="profile-page__form-post"
@@ -348,19 +284,21 @@ const Profile = () => {
                                 </Input>
                             </div>
                             <div className="profile-page__form-post__buttons">
-                                <button 
-                                    className="btn btn--primary"
-                                    type="submit"
+                                <Button
+                                    type="primary"
+                                    role="submit"
+                                    disabled={loading}
+                                    loading={loading}
                                 >
                                     Post
-                                </button>
-                                <button 
-                                    className="btn btn--primary"
-                                    type="button"
+                                </Button>
+                                <Button
+                                    type="primary"
+                                    role="submit"
                                     onClick={switchShowPostForm}
                                 >
                                     Cancel
-                                </button>
+                                </Button>
                             </div>
                         </form>
                     : null
