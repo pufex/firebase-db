@@ -5,7 +5,6 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom"
 import { useDatabase } from "../../contexts/Database"
 import { useInput } from "../../hooks/useInput"
 
-import ErrorPage from "../ErrorPage/ErrorPage"
 import Form from "../../components/Form/Form"
 import Input from "../../components/Input/Input"
 import Button from "../../components/Button/Button"
@@ -27,7 +26,6 @@ const Register = () => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<boolean | string>(false)
-    const [success, setSuccess] = useState<boolean>(false);
 
     const [username, handleUsernameChange, setUsernameError] = useInput({})
     const [email, handleEmailChange, setEmailError] = useInput({})
@@ -37,7 +35,6 @@ const Register = () => {
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setSuccess(false)
         setError(false)
         setUsernameError()
         setEmailError()
@@ -78,25 +75,23 @@ const Register = () => {
         if(shouldReturn) return
         
         setLoading(true)
-        setSuccess(true)
         registerUser(username.value, email.value, password.value)
             .then(() => {
-                if(redirectParam)
-                    navigate(`/${redirectParam}`)
+                if(redirectParam === "true")
+                    navigate(-1)
                 else navigate("/")
             })
             .catch((error) => {
                 console.error(error)
                 setError("Failer to register.");
-                setSuccess(false)
             }) 
         setLoading(false)
 
     }
 
 
-    if(currentUser && !success)
-        return <ErrorPage />
+    if(currentUser)
+        navigate("/")
 
     return <main className="register__main">
         <section className="register__form">

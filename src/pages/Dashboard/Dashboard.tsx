@@ -76,6 +76,7 @@ const AllProducts = () => {
         try{
             setAPL(true)
             await giveAdmin(adminEmail.value)
+            setShowAdminForm(false);
         }catch(error){
             console.error(error)
             setAPE("Failed to give admin privilage.")
@@ -130,7 +131,6 @@ const AllProducts = () => {
                                 errorMessage={adminEmail.errorMessage}
                                 onChange={handleAdminEmailChange}
                                 placeholder="New Admin's Email Address"
-                                isPassword={true}
                             >
                                 Email Address
                             </Input>

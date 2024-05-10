@@ -1,0 +1,50 @@
+.report-successful__modal{
+    background-color: var(--element-color-1);
+    padding: 3rem 2rem;
+    padding-top: 4rem;
+    width: 100%;
+    max-width: 400px;
+    border-radius: 10px;
+    border: 1px solid var(--outline-color-1);
+    box-shadow: 0 0 8px var(--outline-color-1);
+}
+
+.report-successful__header{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding-bottom: 2rem;
+}
+
+.report-successful__heading{
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-color-1);
+}
+
+.report-successful__bubble{
+    height: 3.5rem;
+    aspect-ratio: 1;
+    border-radius: 100%;
+    position: relative;
+    background-color: var(--element-color-4);
+}
+
+.report-successful__bubble-icon{
+    color: var(--text-color-2);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.report-successful__information{
+    width: 100%;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-color-1);
+}

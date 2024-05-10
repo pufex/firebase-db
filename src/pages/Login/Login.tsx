@@ -6,7 +6,6 @@ import { useInput } from "../../hooks/useInput"
 import { useDatabase } from "../../contexts/Database"
 
 import { Link } from "react-router-dom"
-import ErrorPage from "../ErrorPage/ErrorPage"
 import Form from "../../components/Form/Form"
 import Input from "../../components/Input/Input"
 import Button from "../../components/Button/Button"
@@ -25,19 +24,16 @@ const Login = () => {
     } = useDatabase()
 
     const [searchParams] = useSearchParams();
-
     const redirectParam = searchParams.get("redirect")
 
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<boolean | string>(false)
-    const [success, setSuccess] = useState<boolean>(false)
 
     const [email, handleEmailChange, setEmailError] = useInput({});
     const [password, handlePasswordChange, setPasswordError] = useInput({})
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setSuccess(false)
         setError(false)
         setEmailError();
         setPasswordError();
@@ -58,13 +54,11 @@ const Login = () => {
         
         try{
             setLoading(true)
-            setSuccess(true)
             await loginUser(email.value, password.value)
             if(!redirectParam || redirectParam !== "true")
                 navigate("/")
             else navigate(-1)
         }catch(error){
-            setSuccess(false)
             console.error(error)
             setError("Failed to log in.")
         }
@@ -73,8 +67,8 @@ const Login = () => {
 
     }
 
-    if(currentUser && !success)
-        return <ErrorPage />
+    if(currentUser)
+        navigate("/")
 
     return <main className="login__main">
         <section className="login__form">

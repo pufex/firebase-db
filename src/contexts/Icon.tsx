@@ -15,6 +15,7 @@ import { IoIosSad } from "react-icons/io";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { FaTrashCan } from "react-icons/fa6";
 import { MdReportProblem } from "react-icons/md";
+import { FaBan } from "react-icons/fa";
 
 type IconsContextType = {
     IoIosLock: IconType,
@@ -29,6 +30,7 @@ type IconsContextType = {
     HiOutlineDotsHorizontal: IconType,
     FaTrashCan: IconType,
     MdReportProblem: IconType,
+    FaBan: IconType,
 }
 
 const IconsContext = createContext<IconsContextType | null>(null)
@@ -61,6 +63,7 @@ const IconsProvider = ({
             HiOutlineDotsHorizontal,
             FaTrashCan,
             MdReportProblem,
+            FaBan,
         }}
     >
         {children}

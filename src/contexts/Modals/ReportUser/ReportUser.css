@@ -1,0 +1,54 @@
+.report-user__modal{
+    background-color: var(--element-color-1);
+    padding: 3rem 2rem;
+    padding-top: 4rem;
+    width: 100%;
+    max-width: 400px;
+    border-radius: 10px;
+    border: 1px solid var(--outline-color-1);
+    box-shadow: 0 0 8px var(--outline-color-1);
+}
+
+.report-user__header{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.report-user__title{
+    font-size: 2.5rem;
+    color: var(--text-color-1);
+    font-weight: 700;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.report-user__heading{
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--error-color);
+    width: 100%;
+    text-align: center;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+}
+
+.report-user__disclaimer{
+    width: 100%;
+    font-size: 1.1rem;
+    color: var(--text-color-1);
+    text-align: center;
+    font-weight: 600;
+
+}
+
+.report-user__username{
+    width: 100%;
+    font-size: 1.25rem;
+    color: var(--text-color-1);
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 1rem;
+}

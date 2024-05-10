@@ -18,4 +18,5 @@ export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const productsCollection = collection(db, "products")
 export const usersCollection = collection(db, "users")
+export const reportsCollection = collection(db, "reports")
 export const functions = getFunctions(app)

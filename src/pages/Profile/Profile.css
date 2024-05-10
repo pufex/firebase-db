@@ -28,6 +28,13 @@
     font-weight: 700;
 }
 
+.profile-page__banned{
+    font-size: 1.5rem;
+    color: var(--error-color);
+    font-weight: 700;
+    margin-left: 1rem;
+}
+
 .profile-page__description{
     width: 100%;
     display: flex;
@@ -142,4 +149,10 @@ button{
     max-width: 300px;
     display: flex;
     gap: 1rem;
+}
+
+.profile-page__ban-information{
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-color-1);
 }

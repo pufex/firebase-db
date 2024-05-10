@@ -28,6 +28,7 @@ const AllUsers = () => {
                 snapshot?.docs?.forEach?.((doc) => {
                     users.push({...doc.data(), id: doc.id})
                 })
+                console.log(users)
                 setAllUsers(users);
                 setAllState('success')
             })
@@ -45,12 +46,14 @@ const AllUsers = () => {
         if(!allUsers)
             return []
         else
-            return allUsers?.map((user, index) => {
+            return allUsers?.map(({id, username, isBanned, email}, index) => {
+                console.log(isBanned)
                 return <RowUser
-                    userId={user?.id || ""}
+                    userId={id || ""}
                     index={index}
-                    username={user?.username || ""}
-
+                    username={username || ""}
+                    isBanned={isBanned}
+                    email={email || ""}
                 />
             })
     }, [allUsers])
