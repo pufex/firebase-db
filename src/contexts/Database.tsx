@@ -196,7 +196,7 @@ const DatabaseProvider = ({
                 usersArr.push({...doc.data(), id: doc.id});
             })
             setAllUsers(usersArr)
-            setLoadingAllUsers(true);
+            setLoadingAllUsers(false);
         }, (error) => {
             console.error(error)
         })
