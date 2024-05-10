@@ -18,10 +18,8 @@ import {
     addDoc, 
     deleteDoc,
     updateDoc,
-    getDocs, 
     getDoc,
     setDoc,
-    query,
     doc,
     serverTimestamp,
     arrayUnion,
@@ -101,18 +99,12 @@ export type LoginUserFunction = (
 
 export type ResetPasswordFunction = (email: string) => Promise<unknown>
 
-export type GetUserFunction = (
-    id: string,
-) => Promise<unknown>
-
 export type SetProfileUserFunction = (id: string, callback: () => void) => void;
 
 export type ChangeUserDescriptionFunction = (
     id: string,
     newDescription: string,
 ) => Promise<unknown>
-
-export type GetAllUsersFunction = () => Promise<unknown>
 
 export type AddPostFunction = (
     id: string,
@@ -135,6 +127,7 @@ export type ReportUserFunction = (
 ) => Promise<unknown>
 
 export type DatabaseContextType = {
+    allUsers: UsersDocumentType[],
     products: Product[],
     currentUser?: User & {isAdmin: boolean | undefined},
     usersDocument: UsersDocumentType | undefined,
@@ -150,9 +143,6 @@ export type DatabaseContextType = {
     logoutUser: LogoutUserFunction,
     loginUser: LoginUserFunction,
     resetPassword: ResetPasswordFunction,
-
-    getUser: GetUserFunction,
-    getAllUsers: GetAllUsersFunction,
     
     setProfileUser: SetProfileUserFunction,
     changeUserDescription: ChangeUserDescriptionFunction,
@@ -194,6 +184,24 @@ const DatabaseProvider = ({
     const unsubUser = useRef<Function | null>(null);
     const [user, setUser] = useState<UsersDocumentType | undefined>();
     const [profileLoading, setProfileLoading] = useState<LoadingStatus>("static");
+
+    const [loadingAllUsers, setLoadingAllUsers] = useState(true);
+    const [allUsers, setAllUsers] = useState<UsersDocumentType[]>([]);
+
+    useEffect(() => {
+        const unsub = onSnapshot(usersCollection, (snapshot) => {
+            const usersArr: UsersDocumentType[] = [];
+            snapshot.docs.forEach((doc) => {
+                // @ts-expect-error
+                usersArr.push({...doc.data(), id: doc.id});
+            })
+            setAllUsers(usersArr)
+            setLoadingAllUsers(true);
+        }, (error) => {
+            console.error(error)
+        })
+        return unsub;
+    }, [])
 
     const setProfileUser: SetProfileUserFunction = (id, callback) => {
         if(unsubUser.current) unsubUser.current();
@@ -353,19 +361,6 @@ const DatabaseProvider = ({
         return sendPasswordResetEmail(auth, email);
     }
 
-    const getUser: GetUserFunction = (id: string) => {
-        const docRef = doc(db, "users", id);
-        return getDoc(docRef);
-    }
-
-    const getAllUsers: GetAllUsersFunction = () => {
-        const productsQuery = query(
-            usersCollection
-        )
-
-        return getDocs(productsQuery);
-    }
-
     const changeUserDescription: ChangeUserDescriptionFunction = (
         id: string,
         newDescription: string,
@@ -411,6 +406,7 @@ const DatabaseProvider = ({
         products,
         user,
         profileLoading,
+        allUsers,
         setProfileUser,
         addNewProduct,
         removeProduct,
@@ -421,8 +417,6 @@ const DatabaseProvider = ({
         logoutUser,
         loginUser,
         resetPassword,
-        getUser,
-        getAllUsers,
         changeUserDescription,
         addPost,
         removePost,
@@ -437,7 +431,8 @@ const DatabaseProvider = ({
     >
         {
             loadingUser || 
-            loadingProducts 
+            loadingProducts || 
+            loadingAllUsers
                 ? <LoadingPage />
                 : currentUser
                     ? currentUser?.isBanned
